@@ -1,4 +1,4 @@
-angular.module "angular-resource-factory"
+app = angular.module "angular-resource-factory", ["DeferredWithMultipleUpdates"]
 
 # ResourceFactory, a helper class from which you can inherit,
 # has very useful methods:
@@ -6,7 +6,7 @@ angular.module "angular-resource-factory"
 # 1. #_createApiResource
 #
 # TODO see if there are any memory leaks?
-.factory "ResourceFactory", (DeferredWithUpdate, CacheService, $http, ENV, BACKEND_URL, Auth, NetworkConnection, $log) ->
+app.factory "ResourceFactory", (DeferredWithUpdate, CacheService, $http, ENV, BACKEND_URL, Auth, NetworkConnection, $log) ->
   class ResourceFactory
     _getBaseUrl: ->
       "#{BACKEND_URL}/api/v1"

@@ -1,5 +1,9 @@
 (function() {
-  angular.module("angular-resource-factory").factory("ResourceFactory", function(DeferredWithUpdate, CacheService, $http, ENV, BACKEND_URL, Auth, NetworkConnection, $log) {
+  var app;
+
+  app = angular.module("angular-resource-factory", ["DeferredWithMultipleUpdates"]);
+
+  app.factory("ResourceFactory", function(DeferredWithUpdate, CacheService, $http, ENV, BACKEND_URL, Auth, NetworkConnection, $log) {
     var ResourceFactory;
     return ResourceFactory = (function() {
       function ResourceFactory() {}
