@@ -18,15 +18,11 @@
         return localStorage.setItem(key, JSON.stringify(value));
       };
 
-      jtCacheService.prototype.getForUrl = function(url) {
-        return this.get(url);
+      jtCacheService.prototype.shouldUpdate = function(cacheKey, headers) {
+        return this.get("" + cacheKey + "-etag") !== headers("etag");
       };
 
-      jtCacheService.prototype.shouldUpdateUrl = function(url, headers) {
-        return this.get("" + url + "-etag") !== headers("etag");
-      };
-
-      jtCacheService.prototype.update = function(url, headers, data, debug) {
+      jtCacheService.prototype.update = function(cacheKey, headers, data, debug) {
         var ETag, k, _;
         if (debug == null) {
           debug = true;
@@ -39,12 +35,12 @@
           }
         }
         if (ETag = typeof headers === "function" ? headers("etag") : void 0) {
-          this.put("" + url + "-etag", ETag);
+          this.put("" + cacheKey + "-etag", ETag);
         }
         if (debug) {
-          $log.debug("jtCacheService.update:", url, data);
+          $log.debug("jtCacheService.update:", cacheKey, data);
         }
-        return this.put(url, data);
+        return this.put(cacheKey, data);
       };
 
       return jtCacheService;
@@ -130,7 +126,7 @@
         extendResourceWithData = function(data) {
           return angular.extend(resource, data);
         };
-        if (shouldCache && (cacheValue = jtCacheService.getForUrl(cacheKey))) {
+        if (shouldCache && (cacheValue = jtCacheService.get(cacheKey))) {
           resource.$resolved = true;
           resource.$loading = false;
           dataFromCache = transformCacheAfter(angular.copy(cacheValue));
@@ -144,7 +140,7 @@
             resource.$resolved = true;
             resource.$failed = false;
             data = transformResponse(data);
-            if (shouldCache && jtCacheService.shouldUpdateUrl(cacheKey, headers)) {
+            if (shouldCache && jtCacheService.shouldUpdate(cacheKey, headers)) {
               dataToCache = transformCacheBefore(angular.copy(data));
               jtCacheService.update(cacheKey, headers, dataToCache);
               return resource.$resolveWith(data);
@@ -203,8 +199,11 @@
           if (angular.isNumber(v)) {
             params[k] = v.toString();
           }
+          if (v == null) {
+            delete params[k];
+          }
         }
-        return url + (_.isEmpty(params) ? "" : JSON.stringify(params));
+        return url + (angular.equals({}, params) ? "" : JSON.stringify(params));
       };
 
       return jtResourceFactory;

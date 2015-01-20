@@ -14,22 +14,19 @@ app = angular.module "angular-resource-factory", ["DeferredWithMultipleUpdates"]
     put: (key, value) ->
       localStorage.setItem(key, JSON.stringify(value))
 
-    getForUrl: (url) ->
-      @get(url)
+    shouldUpdate: (cacheKey, headers) ->
+      @get("#{cacheKey}-etag") != headers("etag")
 
-    shouldUpdateUrl: (url, headers) ->
-      @get("#{url}-etag") != headers("etag")
-
-    update: (url, headers, data, debug = true) ->
+    update: (cacheKey, headers, data, debug = true) ->
       # Deeply copy the data hash.
       data = angular.copy(data)
       # Remove 'hidden angular properties', like '.$hashId' or '.$promise'.
       for k, _ of data
         delete data[k] if k.indexOf("$") == 0
 
-      @put("#{url}-etag", ETag) if ETag = headers?("etag")
-      $log.debug "jtCacheService.update:", url, data if debug
-      @put(url, data)
+      @put("#{cacheKey}-etag", ETag) if ETag = headers?("etag")
+      $log.debug "jtCacheService.update:", cacheKey, data if debug
+      @put(cacheKey, data)
 
 
 # jtNetworkConnection, a helper class for jtResourceFactory.
@@ -122,7 +119,7 @@ app = angular.module "angular-resource-factory", ["DeferredWithMultipleUpdates"]
         #   for [k, v] in _.pairs(data)
         #     resource[k] = v
 
-      if shouldCache && cacheValue = jtCacheService.getForUrl(cacheKey)
+      if shouldCache && cacheValue = jtCacheService.get(cacheKey)
         # $log.debug "cacheValue resolved!"
         resource.$resolved = true
         resource.$loading = false
@@ -143,7 +140,7 @@ app = angular.module "angular-resource-factory", ["DeferredWithMultipleUpdates"]
           resource.$failed = false
           data = transformResponse(data)
 
-          if shouldCache && jtCacheService.shouldUpdateUrl(cacheKey, headers)
+          if shouldCache && jtCacheService.shouldUpdate(cacheKey, headers)
             dataToCache = transformCacheBefore(angular.copy(data))
             jtCacheService.update(cacheKey, headers, dataToCache)
 
@@ -193,5 +190,6 @@ app = angular.module "angular-resource-factory", ["DeferredWithMultipleUpdates"]
 
       for k, v of params
         params[k] = v.toString() if angular.isNumber(v)
+        delete params[k] unless v?
 
-      url + (if _.isEmpty(params) then "" else JSON.stringify(params))
+      url + (if angular.equals({}, params) then "" else JSON.stringify(params))
