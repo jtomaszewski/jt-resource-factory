@@ -1,6 +1,6 @@
 {
   "name": "angular-resource-factory",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "API Resource factory using Angular's $http with support for cache and useful properties like $promise, $networkPromise, $resolved etc.",
   "main": "dist/angular-resource-factory.min.js",
   "scripts": {
