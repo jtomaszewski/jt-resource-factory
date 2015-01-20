@@ -1,28 +1,93 @@
 (function() {
   var app;
 
-  app = angular.module("angular-resource-factory", ["DeferredWithMultipleUpdates"]);
+  app = angular.module("angular-resource-factory", ["DeferredWithMultipleUpdates"]).service("jtCacheService", function(DSCacheFactory, ENV, $log) {
+    var jtCacheService;
+    return new (jtCacheService = (function() {
+      function jtCacheService() {}
 
-  app.factory("ResourceFactory", function(DeferredWithUpdate, CacheService, $http, ENV, BACKEND_URL, Auth, NetworkConnection, $log) {
-    var ResourceFactory;
-    return ResourceFactory = (function() {
-      function ResourceFactory() {}
-
-      ResourceFactory.prototype._getBaseUrl = function() {
-        return "" + BACKEND_URL + "/api/v1";
+      jtCacheService.prototype.get = function(key) {
+        var value;
+        if (!((value = localStorage.getItem(key)) && value !== "undefined")) {
+          return;
+        }
+        return JSON.parse(value);
       };
 
-      ResourceFactory.prototype._createApiResource = function(_arg) {
-        var $httpParams, cache, cacheKey, cacheValue, dataFromCache, deferredNetworkPromise, deferredPromise, extendResourceWithData, isArray, requestServer, resource, retryIfFails, transformCacheAfter, transformCacheBefore, transformResponse, unbindRetryCallback;
+      jtCacheService.prototype.put = function(key, value) {
+        return localStorage.setItem(key, JSON.stringify(value));
+      };
+
+      jtCacheService.prototype.getForUrl = function(url) {
+        return this.get(url);
+      };
+
+      jtCacheService.prototype.shouldUpdateUrl = function(url, headers) {
+        return this.get("" + url + "-etag") !== headers("etag");
+      };
+
+      jtCacheService.prototype.update = function(url, headers, data, debug) {
+        var ETag, k, _;
+        if (debug == null) {
+          debug = true;
+        }
+        data = angular.copy(data);
+        for (k in data) {
+          _ = data[k];
+          if (k.indexOf("$") === 0) {
+            delete data[k];
+          }
+        }
+        if (ETag = typeof headers === "function" ? headers("etag") : void 0) {
+          this.put("" + url + "-etag", ETag);
+        }
+        if (debug) {
+          $log.debug("jtCacheService.update:", url, data);
+        }
+        return this.put(url, data);
+      };
+
+      return jtCacheService;
+
+    })());
+  }).service("jtNetworkConnection", function($rootScope) {
+    var jtNetworkConnection;
+    return new (jtNetworkConnection = (function() {
+      function jtNetworkConnection() {}
+
+      jtNetworkConnection.prototype.onOnline = function(callback) {
+        var ngCallback;
+        ngCallback = function() {
+          return $rootScope.$applyAsync(callback);
+        };
+        if (typeof Offline !== "undefined" && Offline !== null) {
+          Offline.on("up", ngCallback);
+        }
+        return function() {
+          return typeof Offline !== "undefined" && Offline !== null ? Offline.off("up", ngCallback) : void 0;
+        };
+      };
+
+      return jtNetworkConnection;
+
+    })());
+  }).factory("jtResourceFactory", function(DeferredWithMultipleUpdates, jtCacheService, $http, jtNetworkConnection, $log) {
+    var jtResourceFactory;
+    return jtResourceFactory = (function() {
+      function jtResourceFactory() {}
+
+      jtResourceFactory.prototype._createApiResource = function(_arg) {
+        var $httpParams, cache, cacheKey, cacheValue, createRequestToServer, dataFromCache, deferredNetworkPromise, deferredPromise, extendResourceWithData, isArray, resource, retryIfFails, shouldCache, transformCacheAfter, transformCacheBefore, transformResponse, unbindRetryCallback;
         $httpParams = _arg.$httpParams, transformResponse = _arg.transformResponse, isArray = _arg.isArray, cache = _arg.cache, cacheKey = _arg.cacheKey, retryIfFails = _arg.retryIfFails, transformCacheBefore = _arg.transformCacheBefore, transformCacheAfter = _arg.transformCacheAfter;
-        if (cache == null) {
-          cache = $httpParams.method === "GET";
+        shouldCache = cache;
+        if (shouldCache == null) {
+          shouldCache = $httpParams.method === "GET";
         }
         if (cacheKey == null) {
           cacheKey = this._generateCacheKey($httpParams.url, $httpParams.params);
         }
         if (retryIfFails == null) {
-          retryIfFails = cache;
+          retryIfFails = shouldCache;
         }
         if (transformCacheBefore == null) {
           transformCacheBefore = angular.identity;
@@ -36,8 +101,8 @@
         if (isArray == null) {
           isArray = false;
         }
-        deferredPromise = DeferredWithUpdate.defer();
-        deferredNetworkPromise = DeferredWithUpdate.defer();
+        deferredPromise = DeferredWithMultipleUpdates.defer();
+        deferredNetworkPromise = DeferredWithMultipleUpdates.defer();
         resource = isArray ? [] : {};
         resource.$promise = deferredPromise.promise;
         resource.$networkPromise = deferredNetworkPromise.promise;
@@ -65,23 +130,23 @@
         extendResourceWithData = function(data) {
           return angular.extend(resource, data);
         };
-        if (cache && (cacheValue = CacheService.forUrl(cacheKey))) {
+        if (shouldCache && (cacheValue = jtCacheService.getForUrl(cacheKey))) {
           resource.$resolved = true;
           resource.$loading = false;
           dataFromCache = transformCacheAfter(angular.copy(cacheValue));
           extendResourceWithData(dataFromCache);
           deferredPromise.resolve(dataFromCache);
         }
-        requestServer = function() {
+        createRequestToServer = function() {
           resource.$networkLoading = true;
           return $http($httpParams).success(function(data, status, headers, config) {
             var dataToCache;
             resource.$resolved = true;
             resource.$failed = false;
             data = transformResponse(data);
-            if (cache && (ENV === "development" || CacheService.shouldUpdate(cacheKey, headers))) {
+            if (shouldCache && jtCacheService.shouldUpdateUrl(cacheKey, headers)) {
               dataToCache = transformCacheBefore(angular.copy(data));
-              CacheService.update(cacheKey, headers, dataToCache);
+              jtCacheService.update(cacheKey, headers, dataToCache);
               return resource.$resolveWith(data);
             } else {
               return resource.$resolveWith(data);
@@ -105,14 +170,14 @@
             return resource.$networkLoading = false;
           });
         };
-        requestServer();
+        createRequestToServer();
         resource.$retry = function() {
-          return requestServer();
+          return createRequestToServer();
         };
         if (retryIfFails) {
           unbindRetryCallback = null;
           resource.$networkPromise["catch"](function() {
-            return unbindRetryCallback || (unbindRetryCallback = NetworkConnection.onOnline(function() {
+            return unbindRetryCallback || (unbindRetryCallback = jtNetworkConnection.onOnline(function() {
               if (resource.$failed && !resource.$networkLoading) {
                 return resource.$retry();
               }
@@ -128,7 +193,7 @@
         return resource;
       };
 
-      ResourceFactory.prototype._generateCacheKey = function(url, params) {
+      jtResourceFactory.prototype._generateCacheKey = function(url, params) {
         var k, v;
         params = angular.copy(params || {});
         delete params.auth_token;
@@ -142,7 +207,7 @@
         return url + (_.isEmpty(params) ? "" : JSON.stringify(params));
       };
 
-      return ResourceFactory;
+      return jtResourceFactory;
 
     })();
   });

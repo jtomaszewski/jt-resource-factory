@@ -11,9 +11,13 @@ API Resource factory using Angular's $http with support for cache and useful pro
   - `bower_components/DeferredWithMultipleUpdates.js/lib/deferred-with-multiple-updates.js`
   - `bower_components/angular-resource-factory/dist/angular-resource-factory.js`
 
+  or
+
+  - `bower_components/angular-resource-factory/dist/angular-resource-factory.min.js`
+
 3. Include `angular-resource-factory` to your angular.module dependencies, f.e. `angular.module("APP_NAME", ["angular-resource-factory"])`.
 
-4. Use the `ResourceFactory` factory! =)
+4. Use the `jtResourceFactory` factory! =)
 
 ## Documentation
 

@@ -6,7 +6,7 @@
     "Jacek Tomaszewski <jacek@jtom.me>"
   ],
   "description": "API Resource factory using Angular's $http with support for cache and useful properties like $promise, $networkPromise, $resolved etc.",
-  "main": "dist/angular-resource-factory.js",
+  "main": "dist/angular-resource-factory.min.js",
   "keywords": [
     "angularjs",
     "resource",
