@@ -1,0 +1,23 @@
+{
+  "name": "angular-resource-factory",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jtomaszewski/angular-resource-factory",
+  "authors": [
+    "Jacek Tomaszewski <jacek@jtom.me>"
+  ],
+  "description": "API Resource factory using Angular's $http with support for cache and useful properties like $promise, $networkPromise, $resolved etc.",
+  "main": "dist/angular-resource-factory.js",
+  "keywords": [
+    "angularjs",
+    "resource",
+    "cache"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "DeferredWithMultipleUpdates.js": "git://github.com/jtomaszewski/DeferredWithMultipleUpdates.js.git#~0.2.0"
+  }
+}
