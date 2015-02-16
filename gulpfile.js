@@ -13,9 +13,9 @@ gulp.task("compile-coffee", function(){
 gulp.task("build", ["compile-coffee"], function(){
   return gulp.src([
       "bower_components/DeferredWithMultipleUpdates.js/lib/deferred-with-multiple-updates.js",
-      "./dist/angular-resource-factory.js"
+      "./dist/jt-resource-factory.js"
     ])
-    .pipe( concat("angular-resource-factory.min.js") )
+    .pipe( concat("jt-resource-factory.min.js") )
     .pipe( ngAnnotate() )
     .pipe( uglify() )
     .pipe( gulp.dest("./dist") );

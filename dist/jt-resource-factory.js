@@ -1,7 +1,7 @@
 (function() {
   var app;
 
-  app = angular.module("angular-resource-factory", ["DeferredWithMultipleUpdates"]).service("jtCacheService", function(DSCacheFactory, ENV, $log) {
+  app = angular.module("jt-resource-factory", ["DeferredWithMultipleUpdates"]).service("jtCacheService", function(DSCacheFactory, ENV, $log) {
     var jtCacheService;
     return new (jtCacheService = (function() {
       function jtCacheService() {}

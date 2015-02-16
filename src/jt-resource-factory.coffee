@@ -1,4 +1,4 @@
-app = angular.module "angular-resource-factory", ["DeferredWithMultipleUpdates"]
+app = angular.module "jt-resource-factory", ["DeferredWithMultipleUpdates"]
 
 
 # jtCacheService, a helper class which is used by jtResourceFactory to cache $http responses.

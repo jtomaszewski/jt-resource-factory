@@ -1,12 +1,12 @@
 {
-  "name": "angular-resource-factory",
-  "version": "0.2.1",
-  "homepage": "https://github.com/jtomaszewski/angular-resource-factory",
+  "name": "jt-resource-factory",
+  "version": "0.3.0",
+  "homepage": "https://github.com/jtomaszewski/jt-resource-factory",
   "authors": [
     "Jacek Tomaszewski <jacek@jtom.me>"
   ],
   "description": "API Resource factory using Angular's $http with support for cache and useful properties like $promise, $networkPromise, $resolved etc.",
-  "main": "dist/angular-resource-factory.min.js",
+  "main": "dist/jt-resource-factory.min.js",
   "keywords": [
     "angularjs",
     "resource",
