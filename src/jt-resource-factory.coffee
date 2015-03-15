@@ -106,7 +106,7 @@ app = angular.module "jt-resource-factory", ["DeferredWithMultipleUpdates"]
               delete resource[k]
 
         resource.$data = data
-        extendResourceWithData(data)
+        extendResourceWithData(data) if angular.isObject(data)
         deferredPromise.resolve(data)
         deferredNetworkPromise.resolve(data)
 
@@ -126,7 +126,7 @@ app = angular.module "jt-resource-factory", ["DeferredWithMultipleUpdates"]
 
         dataFromCache = transformCacheAfter(angular.copy(cacheValue))
 
-        extendResourceWithData(dataFromCache)
+        extendResourceWithData(dataFromCache) if angular.isObject(dataFromCache)
         deferredPromise.resolve(dataFromCache)
 
       createRequestToServer = ->
