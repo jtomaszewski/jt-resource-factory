@@ -119,7 +119,9 @@
             }
           }
           resource.$data = data;
-          extendResourceWithData(data);
+          if (angular.isObject(data)) {
+            extendResourceWithData(data);
+          }
           deferredPromise.resolve(data);
           return deferredNetworkPromise.resolve(data);
         };
@@ -130,7 +132,9 @@
           resource.$resolved = true;
           resource.$loading = false;
           dataFromCache = transformCacheAfter(angular.copy(cacheValue));
-          extendResourceWithData(dataFromCache);
+          if (angular.isObject(dataFromCache)) {
+            extendResourceWithData(dataFromCache);
+          }
           deferredPromise.resolve(dataFromCache);
         }
         createRequestToServer = function() {
