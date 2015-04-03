@@ -1,6 +1,6 @@
 {
   "name": "jt-resource-factory",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "API Resource factory using Angular's $http with support for cache and useful properties like $promise, $networkPromise, $resolved etc.",
   "main": "dist/jt-resource-factory.min.js",
   "scripts": {
