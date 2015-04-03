@@ -105,8 +105,11 @@
         resource.$resolved = false;
         resource.$failed = false;
         resource.$loading = true;
-        resource.$resolveWith = function(data) {
+        resource.$resolveWith = function(data, asNetworkResponse) {
           var k, v, _ref;
+          if (asNetworkResponse == null) {
+            asNetworkResponse = true;
+          }
           if (resource.$data) {
             if (angular.isArray(resource.$data)) {
               resource.splice(0, resource.length);
@@ -123,7 +126,9 @@
             extendResourceWithData(data);
           }
           deferredPromise.resolve(data);
-          return deferredNetworkPromise.resolve(data);
+          if (asNetworkResponse) {
+            return deferredNetworkPromise.resolve(data);
+          }
         };
         extendResourceWithData = function(data) {
           return angular.extend(resource, data);
@@ -133,9 +138,8 @@
           resource.$loading = false;
           dataFromCache = transformCacheAfter(angular.copy(cacheValue));
           if (angular.isObject(dataFromCache)) {
-            extendResourceWithData(dataFromCache);
+            resource.$resolveWith(dataFromCache, false);
           }
-          deferredPromise.resolve(dataFromCache);
         }
         createRequestToServer = function() {
           resource.$networkLoading = true;

@@ -96,7 +96,7 @@ app = angular.module "jt-resource-factory", ["DeferredWithMultipleUpdates"]
       resource.$resolved = false
       resource.$failed = false
       resource.$loading = true
-      resource.$resolveWith = (data) ->
+      resource.$resolveWith = (data, asNetworkResponse = true) ->
         # Remove previous values, f.e. added from the cache
         if resource.$data
           if angular.isArray(resource.$data)
@@ -108,7 +108,7 @@ app = angular.module "jt-resource-factory", ["DeferredWithMultipleUpdates"]
         resource.$data = data
         extendResourceWithData(data) if angular.isObject(data)
         deferredPromise.resolve(data)
-        deferredNetworkPromise.resolve(data)
+        deferredNetworkPromise.resolve(data) if asNetworkResponse
 
       extendResourceWithData = (data) ->
         angular.extend(resource, data)
@@ -125,9 +125,8 @@ app = angular.module "jt-resource-factory", ["DeferredWithMultipleUpdates"]
         resource.$loading = false
 
         dataFromCache = transformCacheAfter(angular.copy(cacheValue))
-
-        extendResourceWithData(dataFromCache) if angular.isObject(dataFromCache)
-        deferredPromise.resolve(dataFromCache)
+        if angular.isObject(dataFromCache)
+          resource.$resolveWith(dataFromCache, false)
 
       createRequestToServer = ->
         resource.$networkLoading = true
