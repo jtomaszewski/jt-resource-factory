@@ -1,7 +1,7 @@
 (function() {
   var app;
 
-  app = angular.module("jt-resource-factory", ["DeferredWithMultipleUpdates"]).service("jtCacheService", function(DSCacheFactory, ENV, $log) {
+  app = angular.module("jt-resource-factory", ["DeferredWithMultipleUpdates"]).service("jtCacheService", function($log) {
     var jtCacheService;
     return new (jtCacheService = (function() {
       function jtCacheService() {}
@@ -19,11 +19,11 @@
       };
 
       jtCacheService.prototype.shouldUpdate = function(cacheKey, headers) {
-        return this.get("" + cacheKey + "-etag") !== headers("etag");
+        return this.get(cacheKey + "-etag") !== headers("etag");
       };
 
       jtCacheService.prototype.update = function(cacheKey, headers, data, debug) {
-        var ETag, k, _;
+        var ETag, _, k;
         if (debug == null) {
           debug = true;
         }
@@ -35,7 +35,7 @@
           }
         }
         if (ETag = typeof headers === "function" ? headers("etag") : void 0) {
-          this.put("" + cacheKey + "-etag", ETag);
+          this.put(cacheKey + "-etag", ETag);
         }
         if (debug) {
           $log.debug("jtCacheService.update:", cacheKey, data);
@@ -72,9 +72,9 @@
     return jtResourceFactory = (function() {
       function jtResourceFactory() {}
 
-      jtResourceFactory.prototype._createApiResource = function(_arg) {
+      jtResourceFactory.prototype._createApiResource = function(arg) {
         var $httpParams, cache, cacheKey, cacheValue, createRequestToServer, dataFromCache, deferredNetworkPromise, deferredPromise, extendResourceWithData, isArray, resource, retryIfFails, shouldCache, transformCacheAfter, transformCacheBefore, transformResponse, unbindRetryCallback;
-        $httpParams = _arg.$httpParams, transformResponse = _arg.transformResponse, isArray = _arg.isArray, cache = _arg.cache, cacheKey = _arg.cacheKey, retryIfFails = _arg.retryIfFails, transformCacheBefore = _arg.transformCacheBefore, transformCacheAfter = _arg.transformCacheAfter;
+        $httpParams = arg.$httpParams, transformResponse = arg.transformResponse, isArray = arg.isArray, cache = arg.cache, cacheKey = arg.cacheKey, retryIfFails = arg.retryIfFails, transformCacheBefore = arg.transformCacheBefore, transformCacheAfter = arg.transformCacheAfter;
         shouldCache = cache;
         if (shouldCache == null) {
           shouldCache = $httpParams.method === "GET";
@@ -106,7 +106,7 @@
         resource.$failed = false;
         resource.$loading = true;
         resource.$resolveWith = function(data, asNetworkResponse) {
-          var k, v, _ref;
+          var k, ref, v;
           if (asNetworkResponse == null) {
             asNetworkResponse = true;
           }
@@ -114,9 +114,9 @@
             if (angular.isArray(resource.$data)) {
               resource.splice(0, resource.length);
             } else if (angular.isObject(resource.$data)) {
-              _ref = resource.$data;
-              for (k in _ref) {
-                v = _ref[k];
+              ref = resource.$data;
+              for (k in ref) {
+                v = ref[k];
                 delete resource[k];
               }
             }
