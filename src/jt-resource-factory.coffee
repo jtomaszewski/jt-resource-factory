@@ -5,7 +5,7 @@ app = angular.module "jt-resource-factory", ["DeferredWithMultipleUpdates"]
 #
 # By default, it uses localStorage.
 # You can replace .get(key) and .put(key, value) methods, if you want to use another cache class.
-.service "jtCacheService", (DSCacheFactory, ENV, $log) ->
+.service "jtCacheService", ($log) ->
   new class jtCacheService
     get: (key) ->
       return unless (value = localStorage.getItem(key)) && value != "undefined"
